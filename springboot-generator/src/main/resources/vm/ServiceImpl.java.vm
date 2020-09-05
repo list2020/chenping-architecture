@@ -1,0 +1,88 @@
+package ${package}.service.impl;
+
+import java.util.List;
+import java.util.UUID;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.StringUtil;
+import com.github.pagehelper.PageInfo;
+import com.tiaim.framework.base.page.Pager;
+import ${package}.dao.${className}Dao;
+import ${package}.entity.${className}Entity;
+import ${package}.service.${className}Service;
+
+import tk.mybatis.mapper.entity.Example;
+/**
+ * ${comments}
+ * 
+ * @author ${author}
+ * @email ${email}
+ * @date ${datetime}
+ */
+@Service
+@Transactional
+public class ${className}ServiceImpl implements ${className}Service {
+	
+	@Autowired
+	protected ${className}Dao ${classname}Dao;
+	
+	
+	/**
+	 * 利用通用mapper进行查询。
+	 */
+	@Override
+	public List<${className}Entity> get${className}List(Pager pager, Example example) {
+		// 分页属性设置
+		
+		PageHelper.startPage(pager.getPageNo(), pager.getPageSize());
+		List<${className}Entity> list = ${classname}Dao.selectByExample(example);
+		PageInfo<${className}Entity> page = new PageInfo<${className}Entity>(list);
+		/**
+		 * 通过反射设置pager相关值，并在控制层获取。
+		 **/
+		pager.setTotalPage(page.getPages());
+		pager.setTotalRecord((int) page.getTotal());
+		return list;
+	}
+	
+	
+	
+	@Override
+	public ${className}Entity get${className}By${pk.attrName}(String ${pk.attrname}){
+		return ${classname}Dao.selectByPrimaryKey(${pk.attrname});
+	}
+	
+	
+
+	/**
+	 * 逻辑删除
+	 */
+	@Override
+	public void removeList(List<${className}Entity> list) {
+		for (${className}Entity ${classname} : list) {
+			${classname}Dao.delete(${classname});
+		}
+	}
+
+	@Override
+	public void edit(${className}Entity ${classname}) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void save(${className}Entity ${classname}) throws Exception {
+		if(${classname}!=null&&StringUtil.isNotEmpty(${classname}.getId())){
+			${classname}Dao.updateByPrimaryKeySelective(${classname});
+		}else{
+			${classname}.setId(UUID.randomUUID().toString());
+			${classname}Dao.insertSelective(${classname});
+		}
+	}
+}

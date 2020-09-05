@@ -1,0 +1,55 @@
+package ${package}.service;
+
+import ${package}.entity.${className}Entity;
+import com.tiaim.framework.base.page.Pager;
+import tk.mybatis.mapper.entity.Example;
+import java.util.List;
+
+/**
+ * ${comments}
+ * 
+ * @author ${author}
+ * @email ${email}
+ * @date ${datetime}
+ */
+public interface ${className}Service {
+	
+	
+	/**
+	 * 修改${comments}
+	 * @param ${classname}
+	 * 
+	 */
+	void edit(${className}Entity ${classname});
+	
+	/**
+	 * 删除${comments}
+	 * @param ${classname}
+	 * 
+	 */
+	void removeList(List<${className}Entity> list);
+
+	/**
+	 * 保存${comments}
+	 * @param ${classname}
+	 * 
+	 */
+	void save(${className}Entity ${classname}) throws Exception;
+	
+	/**
+	 * 获取${comments}
+	 * @param ${classname}
+	 * 
+	 */
+	List<${className}Entity> get${className}List(Pager pager, Example example);
+	
+	
+	/**
+	 * 获取${comments}
+	 * @param ${pk.attrname}
+	 * @return
+	 */
+	${className}Entity get${className}By${pk.attrName}(String ${pk.attrname});
+	
+	
+}

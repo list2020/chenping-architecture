@@ -1,0 +1,172 @@
+$(function () {
+    $("#jqGrid").jqGrid({
+        url: baseURL + '${pathName}/get${className}Json',
+        datatype: "json",
+        colModel: [			
+#foreach($column in $columns)
+#if($column.columnName == $pk.columnName)
+			{ label: '${column.attrname}', name: '${column.attrname}', index: '${column.columnName}', width: 50, key: true },
+#else
+			{ label: '${column.comments}', name: '${column.attrname}', index: '${column.columnName}', width: 80 #if($column.attrType=='Integer') ,sorttype : "int" #end }#if($velocityCount != $columns.size()), #end
+			
+#end			
+#end
+/*			{ name: '操作', index: '', align : 'center', width: 120, fixed: true, sortable: false, resize: false,  
+			    formatter: function (value, grid, rows, state) { 
+			    	return "<a style=\"cursor:pointer\" onclick=\"vm.view(\'"+rows.id+"\')\">查看</a>&nbsp;|&nbsp;<a style=\"cursor:pointer\" onclick=\"vm.update(\'"+rows.id+"\')\">修改</a>&nbsp;|&nbsp;<a style=\"cursor:pointer\" onclick=\"vm.del(\'"+rows.id+"\')\">删除</a>";
+			    }
+			} */ 
+        ],
+		viewrecords: true,
+        height: 385,
+        rowNum: 10,
+		rowList : [10,30,50],
+        rownumbers: true, 
+        rownumWidth: 25, 
+        autowidth:true,
+        multiselect: true,
+        altRows : true,
+        pager: "#jqGridPager",
+        jsonReader: {
+			root: "pager.results",
+			page: "pager.pageNo",
+			total: "pager.totalPage",
+			records: "pager.totalRecord"
+		},
+        gridComplete:function(){
+        	//隐藏grid底部滚动条
+        	$("#jqGrid").closest(".ui-jqgrid-bdiv").css({ "overflow-x" : "hidden" }); 
+        },
+        loadComplete :reloadAceIcon //commom.js重新更新替换Ace的icon			
+    });
+#foreach ($column in $columns)	
+#if($column.attrType=='Date')
+
+	$('.date-picker').datepicker({
+		autoclose: true,
+		todayHighlight: true
+	})
+	.next().on(ace.click_event, function() {  
+	    $(this).prev().focus();  
+	});  
+
+#break
+#end
+#end
+});
+
+var vm = new Vue({
+	el:'#rrapp',
+	data:{
+		showList: true,
+		title: null,
+		${classname}: {},
+		isHidden: true,
+		isReadOnly:false
+	},
+	methods: {
+		query: function () {
+			vm.reload();
+		},
+		add: function(){
+			vm.title = "新增";
+			vm.isReadOnly=false;
+			vm.isHidden= false;
+			vm.${classname} = {};
+			$('#modal-container').modal('show');
+		},
+		view: function(){
+			 var id = getSelectedRow();
+				if(id == null){
+					return ;
+				}
+				vm.${classname} = {};
+	            vm.title = "查看";
+	            vm.getInfo(${pk.attrname});
+	            vm.isReadOnly=true;
+	            vm.isHidden= true;
+	            $('#modal-container').modal('show');
+		},
+		update: function (event) {
+            var $pk.attrname = getSelectedRow();
+			if($pk.attrname == null){
+				return ;
+			}
+			vm.${classname} = {};
+            vm.title = "修改";
+            vm.isReadOnly=false;
+            vm.isHidden= false;
+            vm.getInfo(${pk.attrname});
+            $('#modal-container').modal('show');
+		},
+		saveOrUpdate: function (event) {
+			var url = vm.${classname}.${pk.attrname} == null ? "${pathName}/add${className}" : "${pathName}/edit${className}";
+			var jsonData = $.parseJSON(JSON.stringify(vm.${classname}));
+			$.post(baseURL+url,jsonData,function(r){
+				if(r.code === 0){
+					$.Pro('操作成功!');
+					vm.reload();
+				}else{
+					$.Pop(r.msg,'alert',function(){});
+				}
+	        });
+		},
+		del: function (event) {
+			var ${pk.attrname}s = getSelectedRows()+"";
+			if(${pk.attrname}s == null || ${pk.attrname}s == ""|| ${pk.attrname}s=="undefined"  ){
+				return ;
+			}
+			$.Pop('确定要删除选中的记录？','confirm',function(){
+				var url = baseURL + "${pathName}/delete${className}";
+				var jsonData={id:ids};
+				$.post(url,jsonData,function(r){
+					if(r.code === 0){
+						$.Pro('操作成功!');
+						vm.reload();
+					}else{
+						$.Pop(r.msg,'alert',function(){});
+					}
+		      });
+			});
+		},
+		getInfo: function(${pk.attrname}){
+			$.get(baseURL + "${pathName}/get${className}?id="+${pk.attrname}, function(r){
+                vm.${classname} = r.${classname};
+            });
+		},
+		reload: function (event) {
+			vm.showList = true;
+			var page = $("#jqGrid").jqGrid('getGridParam','page');
+			$("#jqGrid").jqGrid('setGridParam',{ 
+                page:page
+            }).trigger("reloadGrid");
+		},
+		hasPermission: function(){
+			/*if (window.parent.permissions.indexOf(permission) > -1) {
+		        return true;
+		    } else {
+		        return false;
+		    }*/
+		   return true;
+		},
+		search:function(){
+			var json = {"id":$("#id").val()};
+			var filters = JSON.stringify(json);
+			jQuery("#jqGrid").jqGrid("setGridParam", {
+				datatype : 'json',
+				postData : {
+					"filters" : filters,
+				}, // 发送数据
+				page : 1,
+				search : true
+			});
+        	vm.reload();
+		},
+		clean:function(){
+			$("#username").val("");
+			$("#ip").val("");
+		}	
+	}
+	
+	
+});

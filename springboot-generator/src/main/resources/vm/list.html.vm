@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>${comments}</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+<meta http-equiv="Expires" content="0" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Cache-control" content="no-cache" />
+<meta http-equiv="Cache" content="no-cache" />
+<link rel="stylesheet" href="../common/theme/bootstap/css/bootstrap.min.css">
+<link rel="stylesheet" href="../common/theme/ace/css/font-awesome.min.css" />
+<link rel="stylesheet" href="../common/plugins/jqGrid/css/ui.jqgrid.css" />
+<link rel="stylesheet" href="../common/theme/ace/css/ace.min.css" />
+<link rel="stylesheet" href="../common/theme/ace/css/ace-rtl.min.css" />
+<link rel="stylesheet" href="../common/theme/ace/css/ace-skins.min.css" />
+<link rel="stylesheet" href="../admin/css/style.css" />
+#foreach ($column in $columns)	
+#if($column.attrType=='Date')
+<link rel="stylesheet" href="../common/theme/ace/css/datepicker.css" />
+#break
+#end
+#end	
+
+
+</head>
+<body>
+<div id="rrapp" v-cloak>
+<div class="page-content" style="padding-top: 0px; padding-bottom: 0px;">
+ 	<div class="row">
+				<div  style="padding: 0px;">
+					<div class="widget-box">
+						<div class="widget-header widget-tab" >
+							<span class="ui-jqgrid-title">系统日志列表</span>
+						</div>
+				</div>
+				<div class="ui-userdata ui-state-default ui-tab top_tab" id="t_grid-table" >
+							<div class="search-input">
+								<form class="search-form">
+									<div class="sinput">
+										<span>ID:</span>
+										<input type="text"
+											placeholder="输入id" class="nav-search-input"
+											id="id" autocomplete="off" />
+									</div>
+									<div class="hline"></div>
+									<a id="btn_search" @click="search" data-toggle="dropdown" class="btn btn-xs btn-primary">搜索</a>
+									<a id="btn_delete" @click="clean" data-toggle="dropdown" class="btn btn-xs btn-primary">清除</a>
+									<a v-if="hasPermission('info:view')" class="btn btn-xs btn-primary" @click="view"><i class="fa fa-eye"></i>&nbsp;查看</a>
+									<a v-if="hasPermission('info:save')" class="btn btn-xs btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+									<a v-if="hasPermission('info:update')" class="btn btn-xs btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+									<a v-if="hasPermission('info:delete')" class="btn btn-xs btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+							
+								</form>
+							</div>
+						</div>
+				</div>
+		</div>
+
+		<div v-show="showList">
+		    <table id="jqGrid"></table>
+		    <div id="jqGridPager"></div>
+	    </div>
+		
+		
+</div>	
+	
+    
+	<div class="container">
+			<div class="row clearfix">
+					<div class="col-md-12 column">	
+						<div class="modal fade" id="modal-container" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							<div class="modal-dialog">
+								<div class="modal-content">
+						<div class="modal-header">
+							 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+							<h4 class="modal-title" id="title" >
+								{{title}}
+							</h4>
+						</div>
+						<div class="modal-body">
+						<form class="form-horizontal">
+						#foreach($column in $columns)
+						#if($column.columnName != $pk.columnName && $column.attrType!='Date')
+						
+							<div class="form-group">
+							   	<div class="col-sm-2 control-label">${column.comments}</div>
+							   	<div class="col-sm-10">
+							      <input type="text" class="form-control"  v-bind:readonly="isReadOnly" v-model="${classname}.${column.attrname}" placeholder="${column.comments}"/>
+							    </div>
+							</div>
+							
+						#end
+						#if($column.attrType=='Date')
+						
+							<div class="form-group">
+							   	<div class="col-sm-2 control-label">${column.comments}</div>
+							   	<div class="col-sm-10">
+									<div class="input-group">
+										<input class="form-control date-picker" readonly="true" v-model="${classname}.${column.attrname}"  my-model="${classname}.${column.attrname}" onchange="vueValueChange(this)"   type="text" data-date-format="yyyy-mm-dd" />
+										<span class="input-group-addon">
+											<i class="fa fa-calendar bigger-110"></i>
+										</span>
+									</div>
+							    </div>
+							</div>
+							
+						#end
+						#end
+						
+							<div class="form-group">
+								<div style="text-align: center;">    
+									<span >
+										<input type="button" class="btn  btn-sm btn-primary"  v-bind:class="{hidden: isHidden }"  @click="saveOrUpdate" data-dismiss="modal" value="确定"/>
+										&nbsp;&nbsp;<input type="button" class="btn  btn-sm btn-warning"   v-bind:class="{hidden: isHidden }"  @click="reload" data-dismiss="modal" value="取消"/>
+									</span>
+								</div>
+							</div>
+						</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	   </div>
+	</div>
+</div>
+
+<script src="../common/theme/ace/js/jquery-2.1.4.min.js"></script>
+<script src="../common/theme/ace/js/bootstrap.min.js"></script>
+<script src="../admin/common.js"></script>
+<script src="../admin/js/resetsize.js"></script>
+<script src="../common/mvvm/vue.js"></script>
+<script src="../common/plugins/jqGrid/i18n/grid.locale-cn.js"></script>
+<script src="../common/theme/ace/js/jquery.jqGrid.min.js"></script>
+<script src="../common/plugins/zTree/js/jquery.ztree.all.min.js"></script>
+<script src="../common/theme/ace/js/ace-elements.min.js"></script>
+<script src="../common/theme/ace/js/ace.min.js"></script>
+<script type="text/javascript" src="../common/plugins/pop/plug-in.js" ></script>
+#foreach ($column in $columns)	
+#if($column.attrType=='Date')
+<script src="../common/theme/ace/js/bootstrap-datepicker.min.js"></script>
+<script src="../common/theme/ace/js/moment.min.js"></script>
+#break
+#end
+#end
+
+
+<script src="../${resource}/js/${pathName}.js"></script>
+
+</body>
+</html>

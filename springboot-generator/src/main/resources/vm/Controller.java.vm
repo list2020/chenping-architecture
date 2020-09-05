@@ -1,0 +1,128 @@
+package ${package}.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import com.tiaim.framework.validator.ValidatorUtils;
+import com.tiaim.framework.validator.group.AddGroup;
+
+import com.tiaim.framework.base.page.Pager;
+import com.tiaim.framework.controller.BaseController;
+import com.tiaim.framework.utils.JqGridSearchTo;
+import com.tiaim.framework.utils.web.R;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import tk.mybatis.mapper.entity.Example;
+import com.alibaba.fastjson.JSONObject;
+import com.tiaim.framework.filter.xxs.SQLFilter;
+
+import ${package}.entity.${className}Entity;
+import ${package}.service.${className}Service;
+
+/**
+ * ${comments}
+ * 
+ * @author ${author}
+ * @email ${email}
+ * @date ${datetime}
+ */
+@RestController
+@RequestMapping("${pathName}")
+@Api("${comments}")
+public class ${className}Controller extends BaseController{
+	@Autowired
+	private ${className}Service ${classname}Service;
+	
+	
+	@RequestMapping("get${className}Json")
+	@ApiOperation(value="获取${className}JSON", notes="")
+	public R get${className}Json(JqGridSearchTo jqGridSearchTo,HttpServletRequest request) throws NoSuchFieldException, SecurityException{
+		Pager pager=getPageInfo(request);
+		List<${className}Entity> list=new ArrayList<${className}Entity>();
+		Example example = new Example(${className}Entity.class);
+		String filters = request.getParameter("filters");
+		if(filters!=null&&!filters.equals("")){
+			JSONObject json = JSONObject.parseObject(filters);
+			if(json.getString("id")!=null&&!"".equals(json.getString("id")))
+				example.and().andCondition("id like '%"+SQLFilter.sqlInject(json.getString("id"))+"%'");
+		}
+		example=sortJqGrid( jqGridSearchTo, example);
+		list=${classname}Service.get${className}List(pager, example);
+		pager.setResults(list);
+		return R.ok().put("pager", pager);
+	}
+	
+	
+	
+	/**
+	 * 获取${comments}
+	 * @param ${pk.attrname}
+	 * @return
+	 */
+	@RequestMapping("get${className}")
+	@ApiOperation(value="获取${className}", notes="")
+	public R get${className}(String ${pk.attrname}){
+		${className}Entity ${classname}= ${classname}Service.get${className}By${pk.attrName}(${pk.attrname});
+		return R.ok().put("${classname}", ${classname});
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * 添加${comments}
+	 * @param user
+	 * @throws NoSuchFieldException
+	 * @throws SecurityException
+	 */
+	@RequestMapping("add${className}")
+	@ApiOperation(value="添加${className}", notes="")
+	public R add${className}(${className}Entity ${classname}) throws Exception{
+		ValidatorUtils.validateEntity( ${classname}, AddGroup.class);
+		${classname}Service.save(${classname});
+		return R.ok();
+	}
+	
+	/**
+	 * 删除${comments}
+	 * @param ${classname}
+	 * @throws NoSuchFieldException
+	 * @throws SecurityException
+	 */
+	@RequestMapping("delete${className}")
+	@ApiOperation(value="删除${comments}", notes="")
+	public R delete${className}(String  id) throws NoSuchFieldException, SecurityException{
+		String[] ids =id.split(",");
+		List<${className}Entity> ${classname}s = new ArrayList<${className}Entity>(); 
+	    for (String ${classname}id : ids) {
+			${className}Entity ${classname} = new ${className}Entity();
+			${classname}.setId(${classname}id);
+			${classname}s.add(${classname});
+		}
+	    ${classname}Service.removeList(${classname}s);
+		return R.ok();
+	}
+	
+	
+	/**
+	 * 修改${comments}
+	 * @param ${classname}
+	 * @throws NoSuchFieldException
+	 * @throws SecurityException
+	 */
+	@RequestMapping("edit${className}")
+	@ApiOperation(value="更新${comments}", notes="")
+	public R edit${className}(${className}Entity ${classname}) throws Exception{
+		ValidatorUtils.validateEntity( ${classname}, AddGroup.class);
+		${classname}Service.save(${classname});
+		return R.ok();
+	}
+}
