@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ping.chen.mapper.UserMapper">
+    <!-- 封装map-->
+    <resultMap id="BaseUserMap" type="com.ping.chen.entity.UserEntity">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="cardId" column="card_id"/>
+        <result property="age" column="age"/>
+        <result property="addr" column="addr"/>
+        <result property="birth" column="birth"/>
+        <result property="account" column="account"/>
+        <result property="pwd" column="pwd"/>
+    </resultMap>
+
+    <!--查询用户列表-->
+    <select id="getUserList" resultType="com.ping.chen.entity.UserEntity">
+        SELECT * FROM t_user
+    </select>
+</mapper>
