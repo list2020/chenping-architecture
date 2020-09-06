@@ -1,4 +1,4 @@
-# chenping-architecture
+# chenping-architecture-java
 架构学习
 1、springboot jpa简单使用；
 2、springboot mybatis简单使用；
